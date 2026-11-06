@@ -34,6 +34,8 @@ export default defineConfig(({mode}) => {
 				manifest: false,
 				injectManifest: {
 					globPatterns: ["**/*.{js,css,html,png,svg,ico,json}"],
+					// Die großen Icons braucht nur das Manifest bei der Installation; der Browser lädt sie dafür selbst.
+					globIgnores: ["logo512.png", "logo1024.png"],
 				},
 			}),
 		],
@@ -46,6 +48,18 @@ export default defineConfig(({mode}) => {
 		build: {
 			// nginx und Dockerfile erwarten die Ausgabe weiterhin unter build/.
 			outDir: "build",
+			rolldownOptions: {
+				output: {
+					// Bibliotheken getrennt vom App-Code, damit ein App-Update (und damit der Service-Worker-Precache)
+					// nur das geänderte App-Bündel neu laden muss. MUI ist der größte Block und bekommt ein eigenes Bündel.
+					codeSplitting: {
+						groups: [
+							{name: "mui", test: /node_modules[\\/]@(mui|emotion)[\\/]/, priority: 2},
+							{name: "vendor", test: /node_modules[\\/]/, priority: 1},
+						],
+					},
+				},
+			},
 		},
 		test: {
 			environment: "jsdom",
