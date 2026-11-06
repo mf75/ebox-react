@@ -1,56 +1,60 @@
 import React from "react";
-import * as serviceWorker from "./serviceWorkerRegistration";
+import {useRegisterSW} from "virtual:pwa-register/react";
 
 interface ServiceWorkerControl {
 	assetsUpdateReady: boolean;
-	assetsCached: boolean;
 	updateAssets: () => void;
 }
 
 const ServiceWorkerContext = React.createContext<ServiceWorkerControl | undefined>(undefined);
 
-const ServiceWorkerProvider = (children: any) => {
-	const [waitingServiceWorker, setWaitingServiceWorker] = React.useState<ServiceWorker | null>(null);
-	const [assetsUpdateReady, setAssetsUpdateReady] = React.useState(false);
-	const [assetsCached, setAssetsCached] = React.useState(false);
+// Ohne Benachrichtigungs-Berechtigung schlägt showNotification fehl; der Button in der Toolbar reicht dann.
+const notifyUpdate = () => {
+	navigator.serviceWorker.ready
+		.then(registration => registration.showNotification("Es ist eine neue Electrobox@Web Version verfügbar!", {
+			body: "Das Update kann über den Button in der Toolbar ausgelöst werden!"
+		}))
+		.catch(() => undefined);
+}
 
-	const value = React.useMemo(
-		() => ({
-			assetsUpdateReady,
-			assetsCached,
-			updateAssets: () => {
-				if (waitingServiceWorker) {
-					waitingServiceWorker.addEventListener("statechange", event => {
-						// @ts-ignore
-						if (event.target.state === "activated") {
-							window.location.reload()
-						}
-					});
-					waitingServiceWorker.postMessage({type: "SKIP_WAITING"});
-				}
+const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
+
+// Der Browser sucht von sich aus nur bei Navigationen nach einem neuen Service Worker. Eine lange offene App
+// (z. B. die installierte PWA) würde ein Update sonst erst nach einem Neuladen bemerken.
+const scheduleUpdateChecks = (registration: ServiceWorkerRegistration) => {
+	const check = () => {
+		if (navigator.onLine && !registration.installing) {
+			registration.update().catch(() => undefined);
+		}
+	};
+	setInterval(check, UPDATE_CHECK_INTERVAL_MS);
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState === "visible") {
+			check();
+		}
+	});
+}
+
+/**
+ * Registriert den Service Worker (nur im Produktions-Build, im Dev-Server liefert vite-plugin-pwa einen Leer-Stub)
+ * und meldet eine wartende neue Version. updateAssets aktiviert sie per SKIP_WAITING und lädt die Seite neu.
+ */
+const ServiceWorkerProvider = ({children}: { children: React.ReactNode }) => {
+	const {needRefresh: [assetsUpdateReady], updateServiceWorker} = useRegisterSW({
+		onNeedRefresh: notifyUpdate,
+		onRegisteredSW: (_swUrl, registration) => {
+			if (registration) {
+				scheduleUpdateChecks(registration);
 			}
-		}),
-		[assetsUpdateReady, assetsCached, waitingServiceWorker]
-	);
+		},
+	});
 
-	// Once on component mounted subscribe to Update and Success events in
-	// CRA's service worker wrapper
-	React.useEffect(() => {
-		serviceWorker.register({
-			onUpdate: registration => {
-				registration.showNotification("Es ist eine neue Electrobox@Web Version verfügbar!", {
-					body: "Das Update kann über den Button in der Toolbar ausgelöst werden!"
-				});
-				setWaitingServiceWorker(registration.waiting);
-				setAssetsUpdateReady(true);
-			},
-			onSuccess: () => {
-				setAssetsCached(true);
-			}
-		});
-	}, []);
+	const value = React.useMemo(() => ({
+		assetsUpdateReady,
+		updateAssets: () => void updateServiceWorker(),
+	}), [assetsUpdateReady, updateServiceWorker]);
 
-	return <ServiceWorkerContext.Provider value={value} {...children} />;
+	return <ServiceWorkerContext.Provider value={value}>{children}</ServiceWorkerContext.Provider>;
 }
 
 function useServiceWorker() {

@@ -11,12 +11,14 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-router": "8.5.1",
-    "react-waypoint": "10.3.0"
+    "react-waypoint": "10.3.0",
+    "workbox-window": "7.4.1"
   },
   "scripts": {
     "dev": "vite",
     "build": "bun run typecheck && vite build",
     "preview": "vite preview",
+    "preview:watch": "vite build --watch & vite preview",
     "test": "vitest",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json"
   },
@@ -34,6 +36,7 @@
     "vite": "8.3.6",
     "vite-plugin-pwa": "2.0.0",
     "vitest": "5.1.0",
+    "workbox-cacheable-response": "7.4.1",
     "workbox-core": "7.4.1",
     "workbox-expiration": "7.4.1",
     "workbox-precaching": "7.4.1",

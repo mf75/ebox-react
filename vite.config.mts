@@ -29,7 +29,7 @@ export default defineConfig(({mode}) => {
 				strategies: "injectManifest",
 				srcDir: "src",
 				filename: "service-worker.ts",
-				// Registrierung und Update-Hinweis übernimmt serviceWorkerRegistration.ts.
+				// Registrierung und Update-Hinweis übernimmt ServiceWorkerProvider über virtual:pwa-register/react.
 				injectRegister: false,
 				manifest: false,
 				injectManifest: {
