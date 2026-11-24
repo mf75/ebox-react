@@ -34,3 +34,5 @@ export const pageTitleAtom = atom("Home");
 export const showToolbarSearchAtom = atom(true);
 export const toolbarSearchInputAtom = atom("");
 export const darkStateAtom = atom(false);
+/** wird nach Anlegen/Ändern/Löschen eines Filters erhöht, damit das Menü neu lädt */
+export const filterVersionAtom = atom(0);

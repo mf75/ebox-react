@@ -5,9 +5,15 @@ import {useAtom} from "jotai";
 import {pageTitleAtom, toolbarSearchInputAtom} from "../../context/atoms";
 import {SetCardList} from "./SetCardList";
 import {EBoxFilter, EBoxSearchParams, EBoxSet} from "../../hooks/types";
+import {Button} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import {Link} from "react-router";
+import useAuthService from "../../hooks/useAuthService";
+import {darfAendern, istAdmin} from "../filtereditor/filterModel";
 
 export const SetCardListContainer = () => {
 	const junkiesApi = useJunkiesService()
+	const auth = useAuthService()
 	const id = Number(useParams().id)
 	const [ sets, setSets ] = useState<EBoxSet[]>([] as EBoxSet[])
 	const [ filterDefinition, setFilterDefinition ] = useState<EBoxFilter|undefined>();
@@ -45,5 +51,7 @@ export const SetCardListContainer = () => {
 		}
 	}, [searchParams])
 
-	return <SetCardList sets={sets} filter={filterDefinition} onNextPage={loadNextPage}/>
+	const bearbeiten = filterDefinition && darfAendern(filterDefinition.is_preset === true, istAdmin(auth.user)) &&
+		<Button size="small" startIcon={<EditIcon/>} component={Link} to={`/filter/${id}/bearbeiten`}>Bearbeiten</Button>;
+	return <SetCardList sets={sets} filter={filterDefinition} kopfAktion={bearbeiten} onNextPage={loadNextPage}/>
 }

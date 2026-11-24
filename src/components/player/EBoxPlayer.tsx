@@ -17,6 +17,7 @@ import ThumbsUpDownIcon from "@mui/icons-material/ThumbsUpDown";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import FastForwardIcon from '@mui/icons-material/FastForward';
@@ -63,6 +64,7 @@ interface Props {
 	playlistState: PlaylistState;
 	voteFunction: (item: PlaylistItem, vote: EBoxVote) => void;
 	startCommentFunction: (item: PlaylistItem) => void;
+	showSetFunction: (item: PlaylistItem) => void;
 }
 
 export const EBoxPlayer: React.FC<Props> = ({
@@ -71,7 +73,8 @@ export const EBoxPlayer: React.FC<Props> = ({
 	playlistState,
 	playlistControls,
 	voteFunction,
-	startCommentFunction
+	startCommentFunction,
+	showSetFunction
 }: Props) => {
 	const [anchorEl, setAnchorEl] = React.useState<Element | null>();
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -132,6 +135,13 @@ export const EBoxPlayer: React.FC<Props> = ({
 
 			{playlistState.currentTrack &&
 			<Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+				<MenuItem onClick={() => {
+					showSetFunction(playlistState.currentTrack!);
+					handleClose()
+				}}>
+					<ListItemIcon><InfoOutlinedIcon/></ListItemIcon>
+					<ListItemText>Set-Details</ListItemText>
+				</MenuItem>
 				<MenuItem onClick={() => {
 					startCommentFunction(playlistState.currentTrack!);
 					handleClose()

@@ -12,6 +12,7 @@ import {CommentDialog} from "./CommentDialog";
 import {useVoteReminder} from "./hooks/useVoteReminder";
 import {Messages} from "../../bundles/common/Messages";
 import {EBoxPlaylistDialog} from "../playlist/EBoxPlaylistDialog";
+import {useNavigate} from "react-router";
 
 
 export const EBoxPlayerContainer = () => {
@@ -19,6 +20,7 @@ export const EBoxPlayerContainer = () => {
 	const junkiesService = useJunkiesService();
 	const [, setNotifyMessage] = useAtom(notifyMessageAtom);
 	const [commentDlgItem, setCommentDlgItem] = useState<PlaylistItem | null>(null);
+	const navigate = useNavigate();
 
 	const state = playlistCtrl.state;
 	const audio = useAudio({
@@ -105,6 +107,7 @@ export const EBoxPlayerContainer = () => {
 		<EBoxPlayer audioControls={audio.controls} audioState={audio.state}
 						playlistControls={playlistCtrl.controls} playlistState={playlistCtrl.state}
 						voteFunction={voteFunction} startCommentFunction={startComment}
+						showSetFunction={(item: PlaylistItem) => navigate("/set/" + item.nid)}
 		/>
 		<EBoxPlaylistDialog playlist={playlistCtrl}/>
 		{commentDlgItem != null &&

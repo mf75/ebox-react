@@ -20,7 +20,7 @@ Web-Client für die DJ-Junkies-Sets. Gebaut mit [Vite](https://vite.dev), Paketv
 
 | Variable            | Vorgabe                     | Bedeutung                                         |
 |---------------------|-----------------------------|---------------------------------------------------|
-| `VITE_REST_API_URL` | `https://www.dj-junkies.de` | Backend, z. B. `https://test.dj-junkies.de`       |
+| `VITE_REST_API_URL` | Dev/Tests: `http://localhost:8082` (lokale Umgebung aus electrobox-infra, Server „nach Umschaltung“: ebox-backend + Rest Drupal); Build: **Pflicht** | Backend, z. B. `https://www.dj-junkies.de` (live) oder `https://test.dj-junkies.de` (test) |
 | `VITE_GIT_SHA`      | `git describe --always`     | Versionsanzeige; im Docker-Build über `GIT_COMMIT` |
 
 Die Variablen können als Umgebungsvariable oder in einer `.env.local` gesetzt werden.

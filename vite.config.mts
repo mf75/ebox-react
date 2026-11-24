@@ -13,13 +13,29 @@ const gitSha = (() => {
 	}
 })();
 
-export default defineConfig(({mode}) => {
+// Lokale Umgebung aus electrobox-infra (deploy/local): nginx-Server „nach Umschaltung“ auf Port 8082.
+const LOCAL_API_URL = "http://localhost:8082";
+// Lokales Keycloak (deploy/local, Profil auth), Realm electrobox.
+const LOCAL_KEYCLOAK_URL = "http://localhost:8180/realms/electrobox";
+
+export default defineConfig(({command, mode}) => {
 	// Vorgaben in process.env setzen, damit Vite sie auch in index.html
 	// (%VITE_…%) ersetzt; .env-Dateien und echte Umgebungsvariablen haben Vorrang.
 	const env = loadEnv(mode, process.cwd(), "VITE_");
-	process.env.VITE_GIT_SHA ??= env.VITE_GIT_SHA || gitSha;
-	// Für das Testsystem VITE_REST_API_URL=https://test.dj-junkies.de setzen.
-	process.env.VITE_REST_API_URL ??= env.VITE_REST_API_URL || "https://www.dj-junkies.de";
+	process.env.VITE_GIT_SHA ||= env.VITE_GIT_SHA || gitSha;
+	// Dev-Server und Tests sprechen standardmäßig die lokale Umgebung an, nie Produktion.
+	// Ein Build (Image für live/test) muss das Backend ausdrücklich angeben, z. B.
+	// VITE_REST_API_URL=https://www.dj-junkies.de oder https://test.dj-junkies.de.
+	const apiUrl = process.env.VITE_REST_API_URL || env.VITE_REST_API_URL;
+	if (!apiUrl && command === "build") {
+		throw new Error("VITE_REST_API_URL fehlt: Für einen Build das Backend ausdrücklich setzen "
+			+ "(live: https://www.dj-junkies.de, test: https://test.dj-junkies.de, lokal: " + LOCAL_API_URL + ").");
+	}
+	process.env.VITE_REST_API_URL = apiUrl || LOCAL_API_URL;
+	// Anmeldung per Keycloak (E5): im Dev-Server immer, im Build nur mit VITE_KEYCLOAK_URL
+	// (z. B. https://auth.dj-junkies.de/realms/electrobox); ohne bleibt das bisherige Login-Formular.
+	const keycloakUrl = process.env.VITE_KEYCLOAK_URL ?? env.VITE_KEYCLOAK_URL;
+	process.env.VITE_KEYCLOAK_URL = keycloakUrl ?? (command === "build" ? "" : LOCAL_KEYCLOAK_URL);
 
 	return {
 		plugins: [

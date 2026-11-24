@@ -27,13 +27,11 @@ export const Home = () => {
 		createRoadmapEntry("Playlist-Anzeige", "Anzeige der aktuellen Einträge mit Edit-Funktionen", true),
 		createRoadmapEntry("PWA-App (alpha)", "Verfügbar als App mit ersten Offline Funktionen (Caching) inkl. Update-Benachrichtigung", true),
 
-		createRoadmapEntry("Set-Kommentar", "Kommentar am Set anzeigen", false),
-		createRoadmapEntry("Set-Bewertungen", "Bewertungen (eigene und andere) am Set anzeigen", false),
-		createRoadmapEntry("Set-Tracks", "Tracks am Set anzeigen, wenn mehr als eins", false),
-
+		createRoadmapEntry("Set-Details", "Tracks, Bewertungen aller Nutzer, Kommentare lesen und schreiben, Artist-Info", true),
+		createRoadmapEntry("Gerade gehört / Zuletzt gut bewertet", "wer gerade was hört und welche Sets zuletzt gut bewertet wurden", true),
 		createRoadmapEntry("Filter-Editor",
-			"Filter bauen, anzeigen und persistent auf dj-junkies speichern/bearbeiten/löschen", false),
-		createRoadmapEntry("Artist-Anzeige", "Suche und Anzeige von DJs", false),
+			"Filter bauen, Vorschau ansehen und persistent auf dj-junkies speichern/bearbeiten/löschen", true),
+		createRoadmapEntry("Artist-Anzeige", "Artists suchen, Bio, ähnliche Artists und alle Sets eines Artists", true),
 	]
 	return <Grid container sx={{justifyContent: "center", alignItems: "center"}}>
 		<Grid size={12}><Logo/></Grid>
